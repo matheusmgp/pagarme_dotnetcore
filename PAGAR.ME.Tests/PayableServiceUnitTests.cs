@@ -35,10 +35,12 @@ namespace PAGAR.ME.Tests
         [Fact]
         public void EXPECTED_ARRAY_TOBE_REDUCED()
         {
-            ICollection<PayableEntity> items = new List<PayableEntity>();
-            items.Add(PayableEntity.CreateEntity(10, DateTime.Now, "paid", "available", 1));
-            items.Add(PayableEntity.CreateEntity(10, DateTime.Now, "paid", "available", 1));
-            items.Add(PayableEntity.CreateEntity(10, DateTime.Now, "paid", "available", 1));
+            ICollection<PayableEntity> items = new List<PayableEntity>
+            {
+                PayableEntity.CreateEntity(new PayableEntityProps(10, DateTime.Now, "paid", "available", 1)),
+                PayableEntity.CreateEntity(new PayableEntityProps(10, DateTime.Now, "paid", "available", 1)),
+                PayableEntity.CreateEntity(new PayableEntityProps(10, DateTime.Now, "paid", "available", 1))
+            };
 
             var reduced = _service.Reduce(items);
             Assert.Equal(30,reduced);

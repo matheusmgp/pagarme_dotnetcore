@@ -1,7 +1,10 @@
-﻿using Domain.Entities;
-using Infra.Context;
+﻿using Application.Errors;
 using Domain.Contracts.Repositories;
+using Domain.Entities;
+using Infra.Context;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
+using System.Data.Common;
 
 namespace Infra.Repositories
 {
@@ -15,9 +18,21 @@ namespace Infra.Repositories
 
         public async Task<ICollection<PayableEntity>> GetAllPayable(string availability)
         {
-            return await _dbContext.Payable
-                            .Where(s => s.Availability == availability)                            
-                            .ToListAsync();
+            try
+            {
+               
+                return await _dbContext.Payable
+               .Where(s => s.Availability == availability)
+               .ToListAsync();
+            }
+            catch(PostgresException ex)
+            {   
+                throw new DatabaseException(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                throw new InternalServerException(ex.Message);
+            }
         }
     }
 }

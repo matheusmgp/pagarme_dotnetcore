@@ -1,8 +1,10 @@
 ﻿
-using Infra.Context;
+using Application.Errors;
 using Domain.Contracts.Repositories;
-using Microsoft.EntityFrameworkCore;
 using Domain.Entities;
+using Infra.Context;
+using Microsoft.EntityFrameworkCore;
+using Npgsql;
 
 namespace Infra.Repositories
 {
@@ -16,14 +18,39 @@ namespace Infra.Repositories
 
         public async Task<TEntity> Create(TEntity entity)
         {
-            await _dbContext.Set<TEntity>().AddAsync(entity);
-            await _dbContext.SaveChangesAsync();
-            return entity;
+            try
+            {
+                await _dbContext.Set<TEntity>().AddAsync(entity);
+                await _dbContext.SaveChangesAsync();
+                return entity;
+            }
+            catch (PostgresException ex)
+            {
+                throw new DatabaseException(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                throw new InternalServerException(ex.Message);
+            }
         }
 
         public async Task<ICollection<TEntity>> GetAll()
         {
-            return await _dbContext.Set<TEntity>().OrderByDescending(p => p.Id).ToListAsync();
+            try
+            {
+                return await _dbContext.Set<TEntity>().
+                    OrderByDescending(p => p.Id).
+                    ToListAsync();
+            }
+            catch (PostgresException ex)
+            {
+                throw new DatabaseException(ex.Message);
+            }
+            catch (Exception ex)
+            {               
+                throw new InternalServerException(ex.Message);
+            }
+          
         }
     }
 }

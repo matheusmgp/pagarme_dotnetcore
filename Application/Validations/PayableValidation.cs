@@ -32,7 +32,7 @@ namespace Application.Validations
               .NotNull()
               .WithMessage("TransactionId deve ser informado.");
 
-           
+
         }
     }
 }

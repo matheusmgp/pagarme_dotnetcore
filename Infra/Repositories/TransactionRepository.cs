@@ -1,7 +1,6 @@
-﻿using Domain.Entities;
+﻿using Domain.Contracts.Repositories;
+using Domain.Entities;
 using Infra.Context;
-using Domain.Contracts.Repositories;
-using Microsoft.EntityFrameworkCore;
 
 namespace Infra.Repositories
 {
@@ -12,6 +11,6 @@ namespace Infra.Repositories
         {
             _dbContext = dbContext;
         }
-       
+
     }
 }
