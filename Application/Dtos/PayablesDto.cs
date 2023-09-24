@@ -12,5 +12,7 @@ namespace Application.Dtos
             Availables = availables; 
             WaitingFunds = waitingFunds;   
         }
+
+
     }
 }

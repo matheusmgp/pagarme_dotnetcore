@@ -1,4 +1,5 @@
 ﻿using Application.Dtos;
+using Application.Utils;
 using FluentValidation;
 
 namespace Application.Validations
@@ -7,6 +8,8 @@ namespace Application.Validations
     {
         public TransactionValidator()
         {
+
+
             RuleFor(x => x.Price)
                 .NotEmpty()
                 .NotNull()
@@ -20,12 +23,14 @@ namespace Application.Validations
             RuleFor(x => x.PaymentMethod)
                 .NotEmpty()
                 .NotNull()
-                .WithMessage("PaymentMethod deve ser informado.");
+                .WithMessage("PaymentMethod deve ser informado.")
+                .Must(x => x.Equals(PaymentMethodEnum.DEBIT) || x.Equals(PaymentMethodEnum.CREDIT))
+                .WithMessage("O metodo de pagamento precisa ser debit_card ou credit_card");
 
             RuleFor(x => x.CardNumber)
-               .NotEmpty()
-               .NotNull()
-               .WithMessage("CardNumber deve ser informado.");
+               .NotEmpty().WithMessage("CardNumber deve ser informado.")
+               .NotNull().WithMessage("CardNumber deve ser informado.")
+               .MaximumLength(16).WithMessage("CardNumber deve ter no máximo 16 digitos.");
 
             RuleFor(x => x.OwnerName)
               .NotEmpty()

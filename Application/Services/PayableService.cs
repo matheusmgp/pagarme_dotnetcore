@@ -1,4 +1,5 @@
 ﻿using Application.Dtos;
+using Application.Errors;
 using Application.Services.Contracts;
 using Application.Utils;
 using Application.Validations;
@@ -21,35 +22,103 @@ namespace Application.Services
 
         public async Task<ResultService<PayableDto>> CreateAsync(PayableDto payableDto)
         {
-            if (payableDto == null)
+            try
             {
-                return ResultService.Fail<PayableDto>("Objeto deve ser informado");
+                if (payableDto == null)
+                {
+                    return ResultService.Fail<PayableDto>("Objeto deve ser informado");
+                }
+
+                var result = new PayableValidation().Validate(payableDto);
+
+                if (!result.IsValid) return ResultService.RequestError<PayableDto>("Problemas de validação ", result);
+
+                PayableEntity payableEntity = _mapper.Map<PayableEntity>(payableDto);
+
+                var data = await _payableRepository.Create(payableEntity);
+
+                return ResultService.Ok(_mapper.Map<PayableDto>(data));
+            }
+            catch (Exception ex)
+            {
+
+                var errorType = ex.GetType().Name;
+                if (errorType == "DatabaseException")
+                {
+                    throw new DatabaseException(ex.Message);
+
+                }
+                else if (errorType == "InternalServerException")
+                {
+                    throw new InternalServerException(ex.Message);
+                }
+                else
+                {
+                    throw new BadRequestException(ex.Message);
+                }
+
             }
 
-            var result = new PayableValidation().Validate(payableDto);
-
-            if (!result.IsValid) return ResultService.RequestError<PayableDto>("Problemas de validação ", result);
-           
-            PayableEntity payableEntity = _mapper.Map<PayableEntity>(payableDto);
-
-            var data = await _payableRepository.Create(payableEntity);
-
-            return ResultService.Ok(_mapper.Map<PayableDto>(data));
         }
 
         public async Task<ResultService<ICollection<PayableDto>>> GetAll()
         {
-            var payables = await _payableRepository.GetAll();
-            return ResultService.Ok(_mapper.Map<ICollection<PayableDto>>(payables));
+            try
+            {
+                var payables = await _payableRepository.GetAll();
+                return ResultService.Ok(_mapper.Map<ICollection<PayableDto>>(payables));
+            }
+            catch (Exception ex)
+            {
+
+                var errorType = ex.GetType().Name;
+                if (errorType == "DatabaseException")
+                {
+                    throw new DatabaseException(ex.Message);
+
+                }
+                else if (errorType == "InternalServerException")
+                {
+                    throw new InternalServerException(ex.Message);
+                }
+                else
+                {
+                    throw new BadRequestException(ex.Message);
+                }
+
+            }
         }
 
         public async Task<ResultService<PayablesDto>> GetAllPayables()
         {
-            var availables = await _payableRepository.GetAllPayable(PayableStatusEnum.AVAILABLE);
-            var waiting = await _payableRepository.GetAllPayable(PayableStatusEnum.WAITING_FUNDS);
-            var retorno = new PayablesDto(RoundNumber(Reduce(availables)), RoundNumber(Reduce(waiting)));
-         
-            return ResultService.Ok(retorno);
+            try
+            {
+                var availables = Reduce(await _payableRepository.GetAllPayable(PayableStatusEnum.AVAILABLE));
+                var waiting = Reduce(await _payableRepository.GetAllPayable(PayableStatusEnum.WAITING_FUNDS));
+
+                var payables = new PayablesDto(RoundNumber(availables), RoundNumber(waiting));
+
+                return ResultService.Ok(payables);
+            }
+            catch (Exception ex)
+            {
+
+                var errorType = ex.GetType().Name;
+                if (errorType == "DatabaseException")
+                {
+                    throw new DatabaseException(ex.Message);
+
+                }
+                else if (errorType == "InternalServerException")
+                {
+                    throw new InternalServerException(ex.Message);
+                }
+                else
+                {
+                    throw new BadRequestException(ex.Message);
+                }
+
+            }
         }
 
 
@@ -59,7 +128,7 @@ namespace Application.Services
         }
         public double RoundNumber(double number)
         {
-            return Math.Round(number,2) ;
+            return Math.Round(number, 2);
         }
     }
 }

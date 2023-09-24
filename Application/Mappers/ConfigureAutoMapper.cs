@@ -9,8 +9,7 @@ namespace Application.Mappers
         public ConfigureAutoMapper()
         {
             CreateMap<TransactionEntity, TransactionDto>().ReverseMap();
-            CreateMap<PayableEntity, PayableDto>().ReverseMap();
-           
+            CreateMap<PayableEntity, PayableDto>().ReverseMap();           
             CreateMap<PayablesDto, PayableEntity>();
         }
     }
