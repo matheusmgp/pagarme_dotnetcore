@@ -24,20 +24,15 @@ namespace Application.Services
         {
             try
             {
-                if (payableDto == null)
-                {
-                    return ResultService.Fail<PayableDto>("Objeto deve ser informado");
-                }
+                if (payableDto == null) return ResultService.Fail<PayableDto>("Objeto deve ser informado");
+
 
                 var result = new PayableValidation().Validate(payableDto);
 
                 if (!result.IsValid) return ResultService.RequestError<PayableDto>("Problemas de validação ", result);
 
-                PayableEntity payableEntity = _mapper.Map<PayableEntity>(payableDto);
 
-                var data = await _payableRepository.Create(payableEntity);
-
-                return ResultService.Ok(_mapper.Map<PayableDto>(data));
+                return ResultService.Ok(_mapper.Map<PayableDto>(await Create(payableDto)));
             }
             catch (Exception ex)
             {
@@ -61,6 +56,14 @@ namespace Application.Services
 
         }
 
+
+        private async Task<PayableEntity> Create(PayableDto payableDto)
+        {
+            var payableEntity = _mapper.Map<PayableEntity>(payableDto);
+
+            return await _payableRepository.Create(payableEntity);
+        }
+      
         public async Task<ResultService<ICollection<PayableDto>>> GetAll()
         {
             try
