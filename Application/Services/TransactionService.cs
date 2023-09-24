@@ -22,31 +22,18 @@ namespace Application.Services
             _payableService = payableService;
             _mapper = mapper;
         }
-
-
-
         public async Task<ResultService<TransactionDto>> CreateAsync(TransactionDto transactionDto)
         {
             try
             {
-                if (transactionDto == null)
-                {
-                    return ResultService.Fail<TransactionDto>("Objeto deve ser informado");
-                }
+                if (transactionDto == null) return ResultService.Fail<TransactionDto>("Objeto deve ser informado");
 
                 var result = new TransactionValidator().Validate(transactionDto);
 
                 if (!result.IsValid) return ResultService.RequestError<TransactionDto>("Problemas de validação ", result);
 
-                var transactionEntity = _mapper.Map<TransactionEntity>(transactionDto);
 
-                var price = transactionEntity.Price;
-                var paymentMethod = transactionEntity.PaymentMethod;
-                var transaction = await _transactionRepository.Create(transactionEntity);
-
-                await _payableService.CreateAsync(new PayableDto(CalculateFee(paymentMethod, price), SetPaymentDate(paymentMethod), SetStatus(paymentMethod), SetAvailability(paymentMethod), transaction.Id));
-
-                return ResultService.Ok(_mapper.Map<TransactionDto>(transaction));
+                return ResultService.Ok(_mapper.Map<TransactionDto>(await Create(transactionDto)));
             }
             catch (Exception ex)
             {
@@ -66,7 +53,19 @@ namespace Application.Services
                 }
             }
         }
+        private async Task<TransactionEntity> Create(TransactionDto transactionDto)
+        {
+            var transactionEntity = _mapper.Map<TransactionEntity>(transactionDto);
 
+            var price = transactionEntity.Price;
+            var paymentMethod = transactionEntity.PaymentMethod;
+
+            var transaction = await _transactionRepository.Create(transactionEntity);
+
+            await _payableService.CreateAsync(new PayableDto(CalculateFee(paymentMethod, price), SetPaymentDate(paymentMethod), SetStatus(paymentMethod), SetAvailability(paymentMethod), transaction.Id));
+
+            return transaction;
+        }
         public async Task<ResultService<ICollection<TransactionDto>>> GetAll()
         {
             try
@@ -82,7 +81,8 @@ namespace Application.Services
                 {
                     throw new DatabaseException(ex.Message);
 
-                }else if (errorType == "InternalServerException")
+                }
+                else if (errorType == "InternalServerException")
                 {
                     throw new InternalServerException(ex.Message);
                 }
@@ -90,9 +90,9 @@ namespace Application.Services
                 {
                     throw new BadRequestException(ex.Message);
                 }
-                
+
             }
-            
+
         }
 
         public string SetStatus(string paymentMethod)
