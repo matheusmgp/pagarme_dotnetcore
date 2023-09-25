@@ -63,7 +63,7 @@ namespace Application.Services
 
             return await _payableRepository.Create(payableEntity);
         }
-      
+
         public async Task<ResultService<ICollection<PayableDto>>> GetAll()
         {
             try
