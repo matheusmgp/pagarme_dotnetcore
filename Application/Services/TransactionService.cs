@@ -31,8 +31,7 @@ namespace Application.Services
                 var result = new TransactionValidator().Validate(transactionDto);
 
                 if (!result.IsValid) return ResultService.RequestError<TransactionDto>("Problemas de validação ", result);
-
-
+           
                 return ResultService.Ok(_mapper.Map<TransactionDto>(await Create(transactionDto)));
             }
             catch (Exception ex)
@@ -56,12 +55,12 @@ namespace Application.Services
         private async Task<TransactionEntity> Create(TransactionDto transactionDto)
         {
             var transactionEntity = _mapper.Map<TransactionEntity>(transactionDto);
-
+           
             var price = transactionEntity.Price;
             var paymentMethod = transactionEntity.PaymentMethod;
 
             var transaction = await _transactionRepository.Create(transactionEntity);
-
+           
             await _payableService.CreateAsync(new PayableDto(CalculateFee(paymentMethod, price), SetPaymentDate(paymentMethod), SetStatus(paymentMethod), SetAvailability(paymentMethod), transaction.Id));
 
             return transaction;
