@@ -46,8 +46,8 @@ namespace PAGAR.ME.Tests
             props.CardNumber = "1234567891478569";  
             props.Description = "";
 
-           var exceptionDescription = Assert.Throws<DomainValidationException>(()=>  TransactionEntity.CreateEntity(props));
-           Assert.Equal("Description deve ser informado",exceptionDescription.Message);
+           var exceptionResult = Assert.Throws<DomainValidationException>(()=>  TransactionEntity.CreateEntity(props));
+           Assert.Equal("Description deve ser informado",exceptionResult.Message);
 
         
         }
@@ -56,16 +56,16 @@ namespace PAGAR.ME.Tests
         {     
            var props = new Fixture().Create<TransactionEntityProps>();          
            props.CardNumber = "1234567891478569";             
-           var exceptionDescription = Assert.Throws<DomainValidationException>(()=>  TransactionEntity.CreateEntity(props));
-           Assert.Equal("PaymentMethod deve debit_card ou credit_card",exceptionDescription.Message);        
+           var exceptionResult = Assert.Throws<DomainValidationException>(()=>  TransactionEntity.CreateEntity(props));
+           Assert.Equal("PaymentMethod deve debit_card ou credit_card",exceptionResult.Message);        
         }
         [Fact]
         public void TransactionEntity_Validate_Method_Exception_CardNumber()
         {     
            var props = new Fixture().Create<TransactionEntityProps>();          
            props.PaymentMethod = "debit_card";            
-           var exceptionDescription = Assert.Throws<DomainValidationException>(()=>  TransactionEntity.CreateEntity(props));
-           Assert.Equal("CardNumber deve ter 16 caracteres",exceptionDescription.Message);        
+           var exceptionResult = Assert.Throws<DomainValidationException>(()=>  TransactionEntity.CreateEntity(props));
+           Assert.Equal("CardNumber deve ter 16 caracteres",exceptionResult.Message);        
         }
         [Fact]
         public void TransactionEntity_Validate_Method_Exception_OwnerName()
@@ -74,8 +74,8 @@ namespace PAGAR.ME.Tests
            props.PaymentMethod = "debit_card";   
            props.CardNumber = "1234567891478569"; 
            props.OwnerName = "";          
-           var exceptionDescription = Assert.Throws<DomainValidationException>(()=>  TransactionEntity.CreateEntity(props));
-           Assert.Equal("OwnerName deve ser informado",exceptionDescription.Message);        
+           var exceptionResult = Assert.Throws<DomainValidationException>(()=>  TransactionEntity.CreateEntity(props));
+           Assert.Equal("OwnerName deve ser informado",exceptionResult.Message);        
         }
         [Fact]
         public void TransactionEntity_Validate_Method_Exception_Cvv()
@@ -84,8 +84,8 @@ namespace PAGAR.ME.Tests
            props.PaymentMethod = "debit_card";   
            props.CardNumber = "1234567891478569"; 
            props.Cvv = 0;          
-           var exceptionDescription = Assert.Throws<DomainValidationException>(()=>  TransactionEntity.CreateEntity(props));
-           Assert.Equal("CVV deve ser informado",exceptionDescription.Message);        
+           var exceptionResult = Assert.Throws<DomainValidationException>(()=>  TransactionEntity.CreateEntity(props));
+           Assert.Equal("CVV deve ser informado",exceptionResult.Message);        
         }
     }
 }

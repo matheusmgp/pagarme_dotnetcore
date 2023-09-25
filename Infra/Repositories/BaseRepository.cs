@@ -38,7 +38,9 @@ namespace Infra.Repositories
         {
             try
             {
-                return await _dbContext.Set<TEntity>().
+              // await _dbContext.Payable.ExecuteDeleteAsync();
+              // await _dbContext.Transaction.ExecuteDeleteAsync();
+               return  await _dbContext.Set<TEntity>().
                     OrderByDescending(p => p.Id).
                     ToListAsync();
             }
