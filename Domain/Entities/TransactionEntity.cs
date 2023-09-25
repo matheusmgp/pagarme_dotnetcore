@@ -15,8 +15,7 @@ namespace Domain.Entities
         public PayableEntity Payable { get; set; }
         public DateTime CardExpiresDate { get; set; }
         public int Cvv { get; set; }
-        private TransactionEntity(double price, DateTime cardExpiresDate, string description, string paymentMethod, string cardNumber,
-             string ownerName, int cvv)
+        private TransactionEntity(double price, DateTime cardExpiresDate, string description, string paymentMethod, string cardNumber, string ownerName, int cvv)
         {
             Price = price;
             CardExpiresDate = cardExpiresDate;
@@ -28,7 +27,10 @@ namespace Domain.Entities
         {
             DomainValidationException.When(string.IsNullOrEmpty(description), "Description deve ser informado");
             DomainValidationException.When(string.IsNullOrEmpty(paymentMethod), "PaymentMethod deve ser informado");
+            DomainValidationException.When(paymentMethod != "debit_card" & paymentMethod != "credit_card", "PaymentMethod deve debit_card ou credit_card");
             DomainValidationException.When(string.IsNullOrEmpty(cardNumber), "CardNumber deve ser informado");
+            DomainValidationException.When(cardNumber.Length > 16, "CardNumber deve ter 16 caracteres");
+            DomainValidationException.When(cardNumber.Length < 16, "CardNumber deve ter 16 caracteres");
             DomainValidationException.When(string.IsNullOrEmpty(ownerName), "OwnerName deve ser informado");
             DomainValidationException.When(cvv <= 0, "CVV deve ser informado");
             Description = description;
