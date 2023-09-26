@@ -1,5 +1,6 @@
 
 using Application.Services;
+using Application.Services.Authorization;
 using Application.Services.Contracts;
 using Domain.Contracts.Repositories;
 using Infra.Repositories;
@@ -13,9 +14,11 @@ namespace Infra.IoC
         {
             services.AddScoped<IPayableService, PayableService>();
             services.AddScoped<ITransactionService, TransactionService>();
-
+            services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<ITransactionRepository, TransactionRepository>();
             services.AddScoped<IPayableRepository, PayableRepository>();
+            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IJwtUtils, JwtUtils>();
             return services;
         }
     }
