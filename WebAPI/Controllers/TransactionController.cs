@@ -1,5 +1,6 @@
 ﻿using Application.Dtos;
 using Application.Services.Contracts;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,6 +15,7 @@ namespace WebAPI.Controllers
         {
             _transactionService = transactionService;
         }
+        [Authorize]
         [HttpPost]
         public async Task<ActionResult> Post([FromBody] TransactionDto dto)
         {
@@ -23,6 +25,7 @@ namespace WebAPI.Controllers
             if (result.IsSuccess) return Ok(result);
             return BadRequest(result);
         }
+        [Authorize]
         [HttpGet]
         public async Task<ActionResult> Get()
         {

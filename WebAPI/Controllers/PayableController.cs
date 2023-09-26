@@ -1,5 +1,5 @@
 ﻿using Application.Services.Contracts;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebAPI.Controllers
@@ -13,6 +13,7 @@ namespace WebAPI.Controllers
         {
             _payableService = payableService;
         }
+        [Authorize]
         [HttpGet("info")]
         public async Task<ActionResult> Get()
         {
@@ -22,6 +23,7 @@ namespace WebAPI.Controllers
             if (result.IsSuccess) return Ok(result);
             return BadRequest(result);
         }
+        [Authorize]
         [HttpGet]
         public async Task<ActionResult> GetPayables()
         {
