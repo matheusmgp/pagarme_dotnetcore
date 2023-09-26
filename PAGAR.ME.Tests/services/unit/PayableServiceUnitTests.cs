@@ -6,6 +6,7 @@ using AutoMapper;
 using Domain.Contracts.Repositories;
 using Domain.Entities;
 using Moq;
+using PAGAR.ME.Tests.Fixtures;
 
 namespace PAGAR.ME.Tests
 {
@@ -40,12 +41,7 @@ namespace PAGAR.ME.Tests
         [Fact]
         public void PayableService_Reduce_Method()
         {
-            ICollection<PayableEntity> items = new List<PayableEntity>
-            {
-                PayableEntity.CreateEntity(new PayableEntityProps(10, DateTime.Now, "paid", "available", 1)),
-                PayableEntity.CreateEntity(new PayableEntityProps(10, DateTime.Now, "paid", "available", 1)),
-                PayableEntity.CreateEntity(new PayableEntityProps(10, DateTime.Now, "paid", "available", 1))
-            };
+            var items = PayableServiceFixtures.PayableEntityListFixture(PayableStatusEnum.PAID);
 
             var reduced = sut.Reduce(items);
             Assert.Equal(30, reduced);
@@ -54,34 +50,22 @@ namespace PAGAR.ME.Tests
         [Fact]
         public async void PayableService_GetAll_Method()
         {
-            var payables = new Collection<PayableEntity>
-            {
-              PayableEntity.CreateEntity(new PayableEntityProps(100, DateTime.Now,"paid", "available", 884)),
-              PayableEntity.CreateEntity(new PayableEntityProps(100, DateTime.Now,"paid", "available", 884)),
-            };
+            var payables = PayableServiceFixtures.PayableEntityListFixture(PayableStatusEnum.PAID);
 
             _payableRepository.Setup(x => x.GetAll()).ReturnsAsync(payables);
 
             var results = await sut.GetAll();
-            Assert.Contains(results.Data, item => item.Amount == 100);
-            Assert.Contains(results.Data, item => item.Status == "paid");
-            Assert.Contains(results.Data, item => item.Availability == "available");
-            Assert.Contains(results.Data, item => item.TransactionId == 884);
+            Assert.Contains(results.Data, item => item.Amount == 10);
+            Assert.Contains(results.Data, item => item.Status == PayableStatusEnum.PAID);
+            Assert.Contains(results.Data, item => item.Availability == PayableStatusEnum.AVAILABLE);
+            Assert.Contains(results.Data, item => item.TransactionId == 1);
 
         }
         [Fact]
         public async void PayableService_GetAllPayable_Method()
         {
-            var availables = new Collection<PayableEntity>
-            {
-              PayableEntity.CreateEntity(new PayableEntityProps(1000, DateTime.Now,"paid", "available", 884)),
-              PayableEntity.CreateEntity(new PayableEntityProps(100, DateTime.Now,"paid", "available", 884)),
-            };
-            var waiting = new Collection<PayableEntity>
-            {
-              PayableEntity.CreateEntity(new PayableEntityProps(500, DateTime.Now,"paid", "available", 884)),
-              PayableEntity.CreateEntity(new PayableEntityProps(100, DateTime.Now,"waiting_funds", "waiting_funds", 884)),
-            };
+            var availables = PayableServiceFixtures.PayableEntityListFixture(PayableStatusEnum.PAID);
+            var waiting = PayableServiceFixtures.PayableEntityListFixture(PayableStatusEnum.WAITING_FUNDS);
 
 
             _payableRepository.Setup(x => x.GetAllPayable(PayableStatusEnum.AVAILABLE)).ReturnsAsync(availables);
@@ -89,8 +73,8 @@ namespace PAGAR.ME.Tests
 
             var results = await sut.GetAllPayables();
 
-            Assert.Equal(1100, results.Data.Availables);
-            Assert.Equal(600, results.Data.WaitingFunds);
+            Assert.Equal(30, results.Data.Availables);
+            Assert.Equal(30, results.Data.WaitingFunds);
 
         }
     }

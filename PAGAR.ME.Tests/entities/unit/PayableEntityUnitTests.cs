@@ -3,6 +3,7 @@
 using AutoFixture;
 using Domain.Entities;
 using Domain.Validations;
+using PAGAR.ME.Tests.Fixtures;
 
 namespace PAGAR.ME.Tests
 {
@@ -11,13 +12,11 @@ namespace PAGAR.ME.Tests
         [Fact]
         public void PayableEntity_CreateEntity_Return_Instance()
         {
-            var props = new Fixture().Create<PayableEntityProps>();
-
-            var entity = PayableEntity.CreateEntity(props);
-            Assert.Equal(props.Amount, entity.Amount);
-            Assert.Equal(props.Status, entity.Status);
-            Assert.Equal(props.Availability, entity.Availability);
-            Assert.Equal(props.TransactionId, entity.TransactionId);
+            var entity = PayableServiceFixtures.PayableEntityFixture();
+            Assert.Equal(100, entity.Amount);
+            Assert.Equal("paid", entity.Status);
+            Assert.Equal("available", entity.Availability);
+            Assert.Equal(1, entity.TransactionId);
 
         }
 

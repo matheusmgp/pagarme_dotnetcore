@@ -5,9 +5,9 @@ using System.Net;
 
 namespace Application.Errors
 {
-    internal class UnauthorizedAccessException : CustomException
+    public class UnauthorizedException : CustomException
     {
-        public UnauthorizedAccessException(string message)
+        public UnauthorizedException(string message)
             : base(message, null, HttpStatusCode.Unauthorized) { }
     }
 }

@@ -3,10 +3,13 @@ using Application.Dtos;
 using Application.Mappers;
 using Application.Services;
 using Application.Services.Contracts;
+using Application.Utils;
+using AutoFixture;
 using AutoMapper;
 using Domain.Contracts.Repositories;
 using Domain.Entities;
 using Moq;
+using PAGAR.ME.Tests.Fixtures;
 
 namespace PAGAR.ME.Tests
 {
@@ -70,10 +73,10 @@ namespace PAGAR.ME.Tests
         [Fact]
         public async void TransactionService_CreateAsync_Method()
         {
-            var transactionDto = new TransactionDto(100, "description", "debit_card", "1234567894561234", "Matheus Gustavo", DateTime.Now, 884);
-            var transactionEntity = TransactionEntity.CreateEntity(new TransactionEntityProps(100, DateTime.Now, "description", "debit_card", "1234567894561234", "Matheus Gustavo", 884));
-            transactionEntity.Id = 10;
-            var payableDto = new PayableDto(100, DateTime.Now, "paid", "available", transactionEntity.Id);
+
+            var transactionDto = TransactionServiceFixtures.TransactionDtoFixture();
+            var transactionEntity = TransactionServiceFixtures.TransactionEntityFixture();
+            var payableDto = TransactionServiceFixtures.PayableDtoFixture();
 
             _payableService.Setup(y => y.CreateAsync(It.IsAny<PayableDto>())).ReturnsAsync(ResultService.Ok(payableDto));
             _transactionRepository.Setup(x => x.Create(It.IsAny<TransactionEntity>())).ReturnsAsync(transactionEntity);
@@ -89,22 +92,17 @@ namespace PAGAR.ME.Tests
         [Fact]
         public async void TransactionService_GetAll_Method()
         {
-            var transactions = new Collection<TransactionEntity>
-            {
-              TransactionEntity.CreateEntity(new TransactionEntityProps(100, DateTime.Now, "description", "debit_card", "1234567894561234", "Matheus Gustavo", 884)),
-              TransactionEntity.CreateEntity(new TransactionEntityProps(100, DateTime.Now, "description", "debit_card", "1234567894561234", "Matheus Gustavo", 884)),
-              TransactionEntity.CreateEntity(new TransactionEntityProps(100, DateTime.Now, "description", "debit_card", "1234567894561234", "Matheus Gustavo", 884))
-            };
+            var transactions = TransactionServiceFixtures.TransactionEntityListFixture();
 
             _transactionRepository.Setup(x => x.GetAll()).ReturnsAsync(transactions);
 
             var results = await sut.GetAll();
             Assert.Contains(results.Data, item => item.Price == 100);
-            Assert.Contains(results.Data, item => item.Description == "description");
+            Assert.Contains(results.Data, item => item.Description == "Descrição test");
             Assert.Contains(results.Data, item => item.CardNumber == "************1234");
-            Assert.Contains(results.Data, item => item.PaymentMethod == "debit_card");
+            Assert.Contains(results.Data, item => item.PaymentMethod == PaymentMethodEnum.DEBIT);
             Assert.Contains(results.Data, item => item.OwnerName == "Matheus Gustavo");
-            Assert.Contains(results.Data, item => item.Cvv == 884);
+            Assert.Contains(results.Data, item => item.Cvv == 001);
 
         }
     }

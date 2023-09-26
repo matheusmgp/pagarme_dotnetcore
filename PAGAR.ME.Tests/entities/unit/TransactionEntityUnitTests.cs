@@ -1,9 +1,11 @@
 
 
+using Application.Utils;
 using AutoFixture;
 using Domain.Entities;
 using Domain.Validations;
 using NuGet.Frameworks;
+using PAGAR.ME.Tests.Fixtures;
 
 namespace PAGAR.ME.Tests
 {
@@ -12,18 +14,13 @@ namespace PAGAR.ME.Tests
       [Fact]
       public void TransactionEntity_CreateEntity_Return_Instance()
       {
-         var props = new Fixture().Create<TransactionEntityProps>();
-         props.PaymentMethod = "debit_card";
-         props.CardNumber = "1234567891478569";
-
-         var entity = TransactionEntity.CreateEntity(props);
-         Assert.Equal(props.Price, entity.Price);
-         Assert.Equal(props.Description, entity.Description);
-         Assert.Equal("debit_card", entity.PaymentMethod);
-         Assert.Equal(props.CardExpiresDate, entity.CardExpiresDate);
-         Assert.Equal(props.OwnerName, entity.OwnerName);
-         Assert.Equal(props.Cvv, entity.Cvv);
-         Assert.Equal("************8569", entity.CardNumber);
+         var entity = TransactionServiceFixtures.TransactionEntityFixture();
+         Assert.Equal(100, entity.Price);
+         Assert.Equal("Descrição test", entity.Description);
+         Assert.Equal(PaymentMethodEnum.DEBIT, entity.PaymentMethod);
+         Assert.Equal("Matheus", entity.OwnerName);
+         Assert.Equal(001, entity.Cvv);
+         Assert.Equal("************1234", entity.CardNumber);
       }
 
       [Fact]

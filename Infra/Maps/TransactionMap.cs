@@ -30,9 +30,6 @@ namespace Infra.Maps
         .HasColumnName("card_expires_date");
       builder.Property(x => x.Cvv)
        .HasColumnName("cvv");
-
-
-
     }
   }
 }
