@@ -20,7 +20,7 @@ namespace WebAPI.Controllers
             _jwtUtils = jwtUtils;
         }
         [HttpPost("register")]
-        public ActionResult Register(UserDto userDto)
+        public ActionResult Register(UserAuthenticationRequestDto userDto)
         {
             var hashed = _authService.HashPassword(userDto.Password);
             userDto.Password = hashed;
@@ -28,14 +28,15 @@ namespace WebAPI.Controllers
         }
 
         [HttpPost("login")]
-        public ActionResult Login(UserDto userDto)
+        public ActionResult Login(UserAuthenticationRequestDto userDto)
         {
             var authenticated = _authService.VerifyPassword(userDto.Password, "changeItLater");
             return Ok(authenticated);
         }
         [HttpPost("token")]
-        public ActionResult CreateToken(UserDto userDto)
+        public ActionResult CreateToken(UserAuthenticationRequestDto userDto)
         {
+        
             return Ok(_jwtUtils.GenerateJwtToken(userDto));
         }
 

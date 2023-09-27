@@ -3,34 +3,20 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Application.Dtos;
+using Application.Services.Authorization.Response;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Application.Services.Authorization
 {
     public class JwtUtils : IJwtUtils
     {
-        public JwtUtils()
+        private const int EXPIRATION_MINUTES = 10;
+        private readonly IConfiguration _configuration;
+        public JwtUtils(IConfiguration configuration)
         {
-
-        }
-
-        public string GenerateJwtToken(UserDto user)
-        {
-            // generate token that is valid for 7 days
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(AppSettings.Secret);
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(new Claim[]
-                {
-                    new Claim(ClaimTypes.Name, user.UserName.ToString()),
-                }),
-                Expires = DateTime.UtcNow.AddHours(2),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-            };
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            return tokenHandler.WriteToken(token);
-        }
+            _configuration = configuration;
+        }     
 
         public int? ValidateJwtToken(string? token)
         {
@@ -63,5 +49,41 @@ namespace Application.Services.Authorization
                 return null;
             }
         }
+      
+        public UserAuthenticationResponseDto GenerateJwtToken(UserAuthenticationRequestDto user)
+        {
+            var expiration = DateTime.UtcNow.AddMinutes(EXPIRATION_MINUTES);
+
+            var token = CreateJwtToken(
+               CreateClaims(user),
+               CreateSigningCredentials(),
+               expiration
+           );
+
+            var jwt = new JwtSecurityTokenHandler().WriteToken(token);
+
+            return new UserAuthenticationResponseDto(jwt, expiration);
+        }
+
+        private JwtSecurityToken CreateJwtToken(Claim[] claims, SigningCredentials credentials, DateTime expiration) =>
+           new JwtSecurityToken(
+               _configuration["Jwt:Issuer"],
+               _configuration["Jwt:Audience"],
+               claims,
+               expires: expiration,
+               signingCredentials: credentials
+           );
+      
+        private Claim[] CreateClaims(UserAuthenticationRequestDto user) =>
+           new[] {
+                new Claim(ClaimTypes.Name, user.UserName),
+           };
+
+        private SigningCredentials CreateSigningCredentials()
+        {
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(AppSettings.Secret));
+            return new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+        }
+
     }
 }
